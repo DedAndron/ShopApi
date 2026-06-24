@@ -1,11 +1,20 @@
 
 using ShopApp.Interfaces;
+using ShopApp.Middlewares;
 using ShopApp.Services;
 
 //DI (Dependency Injection) - реестрация любого класса и внедренние его в любую часть проекта без создания класса.
+//Middleware - небольшой компонент кода, который встраивается в конвеер обработки запроса.
 
 namespace ShopApp
 {
+    public static class MiddlewareExtensions
+    {
+        public static IApplicationBuilder UseRequestTimer(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<RequestTimerMiddleware>();
+        }
+    }
     public class Program
     {
         public static void Main(string[] args)
@@ -17,21 +26,20 @@ namespace ShopApp
             builder.Services.AddControllers();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddScoped<IProductService, ProductService>();
-
+            builder.Services.AddSingleton<IProductService, ProductService>();
+            builder.Services.AddSingleton<ICategoryService, CategoryService>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-            }
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.MapOpenApi();
+            //}
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
-            app.UseAuthorization();
-
-
+            //app.UseAuthorization();
+            app.UseRequestTimer();
             app.MapControllers();
 
             app.Run();

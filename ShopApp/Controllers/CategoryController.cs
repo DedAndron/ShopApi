@@ -17,12 +17,17 @@ public class CategoryController(ICategoryService _categoryService) : ControllerB
     [HttpGet("{id}")]
     public IActionResult GetCategoryById([FromRoute] int id)
     {
-        var product = new Product()
+        var category = new Category()
         {
-            Title = $"Test Product {id}",
-            Price = 100
+            Id = id,
+            Title = $"Test Category {id}",
+            Description = $"Test Category {id} Description",
+            Image = "img",
+            createdAt = DateTime.Now,
+            updatedAt = DateTime.Now,
+            isShow = true
         };
-        return Ok(product);
+        return Ok(category);
     }
 
     [HttpPost]
