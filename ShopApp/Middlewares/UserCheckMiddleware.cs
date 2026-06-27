@@ -8,7 +8,6 @@ namespace ShopApp.Middlewares
     {
         private readonly RequestDelegate _next;
         
-
         public UserCheckMiddleware(RequestDelegate next)
         {
             _next = next;

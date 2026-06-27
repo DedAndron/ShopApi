@@ -1,0 +1,7 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+POST https://localhost:7261/api/user/register
+Content-Type: aplication/json
+{
+  "Id": 1,
+  "Login": admin
+}

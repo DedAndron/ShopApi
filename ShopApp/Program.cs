@@ -5,6 +5,7 @@ using ShopApp.Services;
 
 //DI (Dependency Injection) - реестрация любого класса и внедренние его в любую часть проекта без создания класса.
 //Middleware - небольшой компонент кода, который встраивается в конвеер обработки запроса.
+//DTO (Data Transfer Object) - простой контейнер для переноса информации между разными частями программы.
 
 namespace ShopApp
 {
@@ -14,7 +15,12 @@ namespace ShopApp
         {
             return builder.UseMiddleware<RequestTimerMiddleware>();
         }
+        public static IApplicationBuilder UseUserChecker(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<UserCheckMiddleware>();
+        }
     }
+
     public class Program
     {
         public static void Main(string[] args)
@@ -40,6 +46,8 @@ namespace ShopApp
 
             //app.UseAuthorization();
             app.UseRequestTimer();
+            app.UseUserChecker();
+            app.UseStaticFiles();
             app.MapControllers();
 
             app.Run();
