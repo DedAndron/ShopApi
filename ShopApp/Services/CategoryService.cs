@@ -5,37 +5,35 @@ namespace Shop.Api.Services
 {
     public class CategoryService : ICategoryService
     {
-        private List<Category> _category = new();
-        public CategoryService()
+        private readonly List<Category> _categories = new()
         {
-            _category.Add(new Category()
+            new Category
             {
                 Id = 1,
-                Title = "test1",
-                Description = "test description",
-                Image = "img",
-                createdAt = DateTime.Today,
-                updatedAt = DateTime.Now,
-                isShow = true
-            });
-            _category.Add(new Category()
+                Name = "Dairy",
+                Slug = "dairy"
+            },
+            new Category
             {
                 Id = 2,
-                Title = "test2",
-                Description = "test description",
-                Image = "img",
-                createdAt = DateTime.Today,
-                updatedAt = DateTime.Now,
-                isShow = true
-            });
-        }
+                Name = "Bakery",
+                Slug = "bakery"
+            }
+        };
+
         public void AddCategory(Category category)
         {
-            _category.Add(category);
+            if (category.Id == 0)
+            {
+                category.Id = _categories.Count == 0 ? 1 : _categories.Max(c => c.Id) + 1;
+            }
+
+            _categories.Add(category);
         }
+
         public List<Category> GetAllCategories()
         {
-            return _category;
+            return _categories;
         }
     }
 }

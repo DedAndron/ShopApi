@@ -1,9 +1,11 @@
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using Shop.Api.Interfaces;
 using Shop.Api.Middlewares;
 using Shop.Api.Services;
 using Shop.Infrastructure.Data;
+using System.Reflection;
 
 //DI (Dependency Injection) - реестрация любого класса и внедренние его в любую часть проекта без создания класса.
 //Middleware - небольшой компонент кода, который встраивается в конвеер обработки запроса.
@@ -37,11 +39,23 @@ namespace Shop.Api
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Products API",
+                    Version = "v1",
+                    Description = "API for work with products"
+                });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
+            });
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddSingleton<IProductService, ProductService>();
             builder.Services.AddSingleton<ICategoryService, CategoryService>();
+            builder.Services.AddSingleton<IUserService, UserService>();
             var app = builder.Build();
             app.UseSwagger();
             app.UseSwaggerUI();

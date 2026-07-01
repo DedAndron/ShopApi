@@ -7,14 +7,14 @@ namespace Shop.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController(IUserService _userService):ControllerBase
+    public class UserController(IUserService userService) : ControllerBase
     {
         [HttpPost("register")]
         [UserActionFilter]
         public IActionResult RegisterUser([FromBody] User user)
         {
-            _userService.RegisterUser(user);
-            return Created();
+            userService.RegisterUser(user);
+            return CreatedAtAction(nameof(RegisterUser), new { id = user.Id }, user);
         }
     }
 }

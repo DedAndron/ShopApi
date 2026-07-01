@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ShopDomain.Models;
 
 namespace Shop.Api.Controllers
@@ -8,52 +7,44 @@ namespace Shop.Api.Controllers
     [Route("api/[controller]")]
     public class ItemsController : ControllerBase
     {
-        private List<Item> _items = new();
-        [HttpGet("/api/items")]
+        private static readonly List<Item> Items = new()
+        {
+            new Item { Id = 1, Name = "Test" },
+            new Item { Id = 2, Name = "Test1" },
+            new Item { Id = 3, Name = "Test2" }
+        };
+
+        [HttpGet]
         public IActionResult GetItems()
         {
-            _items.Add(new Item()
-            {
-                Id = 1,
-                Name = "Test",
-            });
-            _items.Add(new Item()
-            {
-                Id = 2,
-                Name = "Test1",
-            });
-            _items.Add(new Item()
-            {
-                Id = 3,
-                Name = "Test2",
-            });
-            return Ok(_items);
+            return Ok(Items);
         }
-        [HttpGet("/api/items/{id}")]
-        public IActionResult GetItemById(int id)
+
+        [HttpGet("{id:int}")]
+        public IActionResult GetItemById([FromRoute] int id)
         {
-            Item item = new Item()
+            var item = Items.FirstOrDefault(i => i.Id == id);
+
+            if (item is null)
             {
-                Id = id,
-                Name = $"Test{id}",
-            };
+                return NotFound();
+            }
+
             return Ok(item);
         }
-        [HttpGet("/api/items/search/{name}")]
-        public IActionResult GetItemByName(string name)
+
+        [HttpGet("search/{name}")]
+        public IActionResult GetItemByName([FromRoute] string name)
         {
-            List<Item> items = new List<Item>();
-            if (name == null)
+            if (string.IsNullOrWhiteSpace(name))
             {
                 return BadRequest();
             }
-            foreach (var item in items)
-            {
-                if (item.Name == name)
-                {
-                    items.Add(item);
-                }
-            }
+
+            var items = Items
+                .Where(item => string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
             return Ok(items);
         }
     }

@@ -6,35 +6,31 @@ namespace Shop.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CategoryController(ICategoryService _categoryService) : ControllerBase
+public class CategoryController(ICategoryService categoryService) : ControllerBase
 {
     [HttpGet]
     public List<Category> GetCategory()
     {
-        return _categoryService.GetAllCategories();
+        return categoryService.GetAllCategories();
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public IActionResult GetCategoryById([FromRoute] int id)
     {
-        var category = new Category()
+        var category = categoryService.GetAllCategories().FirstOrDefault(c => c.Id == id);
+
+        if (category is null)
         {
-            Id = id,
-            Title = $"Test Category {id}",
-            Description = $"Test Category {id} Description",
-            Image = "img",
-            createdAt = DateTime.Now,
-            updatedAt = DateTime.Now,
-            isShow = true
-        };
+            return NotFound();
+        }
+
         return Ok(category);
     }
 
     [HttpPost]
     public IActionResult AddNewCategory([FromBody] Category category)
     {
-        _categoryService.AddCategory(category);
-        return Created();
+        categoryService.AddCategory(category);
+        return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, category);
     }
 }
-
