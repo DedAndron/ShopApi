@@ -1,36 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Shop.Api.Interfaces;
-using ShopDomain.Models;
+using Shop.Application.Interfaces.Services;
+using Shop.Application.DTOs.CategoryDTOs;
 
 namespace Shop.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class CategoryController(ICategoryService categoryService) : ControllerBase
+[Route("api/v1/[controller]")]
+public class CategoryController(ICategoryService _categoryService):ControllerBase
 {
-    [HttpGet]
-    public List<Category> GetCategory()
-    {
-        return categoryService.GetAllCategories();
-    }
-
-    [HttpGet("{id:int}")]
-    public IActionResult GetCategoryById([FromRoute] int id)
-    {
-        var category = categoryService.GetAllCategories().FirstOrDefault(c => c.Id == id);
-
-        if (category is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(category);
-    }
-
     [HttpPost]
-    public IActionResult AddNewCategory([FromBody] Category category)
+    public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDTO dto)
     {
-        categoryService.AddCategory(category);
-        return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, category);
+        int? id = await _categoryService.CreateCategoryAsync(dto);
+        return Ok($"Category created {id}");
     }
 }

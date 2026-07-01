@@ -21,6 +21,9 @@ namespace ShopDomain.Models
         [Column("slug")]
         public string Slug { get; set; } = string.Empty;
 
+        [Column("url")] 
+        public string Url { get; set; } = string.Empty;
+
         // Self-referencing (підкатегорія)    [Column("parent_id")]
         public int? ParentId { get; set; }
 

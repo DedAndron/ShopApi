@@ -4,7 +4,9 @@ using Microsoft.OpenApi;
 using Shop.Api.Interfaces;
 using Shop.Api.Middlewares;
 using Shop.Api.Services;
+using Shop.Application.Interfaces.Repository;
 using Shop.Infrastructure.Data;
+using Shop.Infrastructure.Repositories;
 using System.Reflection;
 
 //DI (Dependency Injection) - реестрация любого класса и внедренние его в любую часть проекта без создания класса.
@@ -53,9 +55,9 @@ namespace Shop.Api
             });
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddSingleton<IProductService, ProductService>();
-            builder.Services.AddSingleton<ICategoryService, CategoryService>();
-            builder.Services.AddSingleton<IUserService, UserService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             var app = builder.Build();
             app.UseSwagger();
             app.UseSwaggerUI();
@@ -68,8 +70,8 @@ namespace Shop.Api
             //app.UseHttpsRedirection();
 
             //app.UseAuthorization();
-            app.UseRequestTimer();
-            app.UseUserChecker();
+            //app.UseRequestTimer();
+            //app.UseUserChecker();
             app.UseStaticFiles();
             app.MapControllers();
 
