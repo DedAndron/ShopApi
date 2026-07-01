@@ -1,4 +1,6 @@
 <Solution>
-  <Project Path="ShopApp/ShopApp.csproj" />
+  <Project Path="Shop.Application/Shop.Application.csproj" Id="c33ac6ae-d568-4ded-a0f9-65aff55e40e2" />
+  <Project Path="Shop.Infrastructure/Shop.Infrastructure.csproj" Id="65f8baeb-961d-4b96-bb6e-bce00b3cbee8" />
+  <Project Path="ShopApp/Shop.Api.csproj" />
   <Project Path="ShopDomain/ShopDomain.csproj" />
 </Solution>

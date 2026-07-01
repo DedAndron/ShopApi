@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using ShopDomain.Models;
 
-namespace Shop.App.Filters;
+namespace Shop.Api.Filters;
 public class LogActionFilter : ActionFilterAttribute
 {
     public override void OnActionExecuting(ActionExecutingContext context)

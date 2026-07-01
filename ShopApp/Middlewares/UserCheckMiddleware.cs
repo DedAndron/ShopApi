@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json;
 
-namespace ShopApp.Middlewares
+namespace Shop.Api.Middlewares
 {
     public class UserCheckMiddleware
     {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ShopApp.Interfaces;
+using Shop.Api.Interfaces;
 using ShopDomain.Models;
 
-namespace ShopApp.Controllers;
+namespace Shop.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

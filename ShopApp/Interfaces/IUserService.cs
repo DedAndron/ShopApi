@@ -1,6 +1,6 @@
 ﻿using ShopDomain.Models;
 
-namespace ShopApp.Interfaces
+namespace Shop.Api.Interfaces
 {
     public interface IUserService
     {

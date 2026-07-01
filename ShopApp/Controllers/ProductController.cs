@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ShopApp.Interfaces;
+using Shop.Api.Interfaces;
 using ShopDomain.Models;
-namespace ShopApp.Controllers;
+namespace Shop.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -23,7 +23,7 @@ public class ProductController(IProductService _productService):ControllerBase
     {
         var product = new Product()
         {
-            Title = $"Test Product {id}",
+            Name = $"Test Product {id}",
             Price = 100
         };
         return Ok(product);

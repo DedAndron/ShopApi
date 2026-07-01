@@ -1,13 +1,15 @@
 
-using ShopApp.Interfaces;
-using ShopApp.Middlewares;
-using ShopApp.Services;
+using Microsoft.EntityFrameworkCore;
+using Shop.Api.Interfaces;
+using Shop.Api.Middlewares;
+using Shop.Api.Services;
+using Shop.Infrastructure.Data;
 
 //DI (Dependency Injection) - реестрация любого класса и внедренние его в любую часть проекта без создания класса.
 //Middleware - небольшой компонент кода, который встраивается в конвеер обработки запроса.
 //DTO (Data Transfer Object) - простой контейнер для переноса информации между разными частями программы.
 
-namespace ShopApp
+namespace Shop.Api
 {
     public static class MiddlewareExtensions
     {
@@ -28,14 +30,21 @@ namespace ShopApp
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddDbContext<ShopDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"));
+            });
 
             builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddSingleton<IProductService, ProductService>();
             builder.Services.AddSingleton<ICategoryService, CategoryService>();
             var app = builder.Build();
-
+            app.UseSwagger();
+            app.UseSwaggerUI();
             // Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())
             //{

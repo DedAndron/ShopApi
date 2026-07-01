@@ -1,7 +1,7 @@
-﻿using ShopApp.Interfaces;
+﻿using Shop.Api.Interfaces;
 using ShopDomain.Models;
 
-namespace ShopApp.Services
+namespace Shop.Api.Services
 {
     public class CategoryService : ICategoryService
     {
