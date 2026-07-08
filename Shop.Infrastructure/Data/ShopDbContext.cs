@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using ShopDomain.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Shop.Infrastructure.Data
 {

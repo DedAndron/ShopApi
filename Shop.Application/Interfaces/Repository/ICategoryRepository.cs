@@ -9,6 +9,6 @@ namespace Shop.Application.Interfaces.Repository;
 public interface ICategoryRepository
 {
     Task<int?> AddCategoryAsync(Category category);
-    Task<IEnumerable<CategoryReadDTO>> ListCategoriesAsync();
+    Task<List<Category>?> GetAllCategoriesAsync();
     Task<CategoryReadDTO?> GetCategoryByIdAsync(int id);
 }

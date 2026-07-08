@@ -18,16 +18,26 @@ public class CategoryService(ICategoryRepository _repository) : ICategoryService
         });
     }
 
-    public async Task<IEnumerable<CategoryReadDTO>> ListCategoriesAsync()
+    public async Task<List<CategoryReadDTO>?> GetAllCategoriesAsync()
     {
-        var categories = await _repository.ListCategoriesAsync();
-        return categories.Select(c => new CategoryReadDTO()
+        List<Category>? categories = await _repository.GetAllCategoriesAsync();
+        List<CategoryReadDTO> dtos = null;
+        if (categories != null && categories.Count > 0)
         {
-            Id = c.Id,
-            Name = c.Name,
-            Slug = c.Slug,
-            Url = c.Url,
-        }).ToList();
+            dtos = new List<CategoryReadDTO>();
+            categories.ForEach(category =>
+            {
+                dtos.Add(new CategoryReadDTO()
+                {
+                    Id = category.Id,
+                    Slug = category.Slug,
+                    Name = category.Name,
+                    Url = category.Url,
+                    ParentId = category.ParentId
+                });
+            });
+        }
+        return dtos;
     }
 
     public async Task<CategoryReadDTO?> GetCategoryByIdAsync(int id)

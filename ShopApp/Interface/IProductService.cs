@@ -7,4 +7,3 @@ public interface IProductService
     List<Product> GetAllProducts();
     void AddProduct(Product product);
 }
-

@@ -1,4 +1,5 @@
-﻿using Shop.Application.Interfaces.Repository;
+﻿using Shop.Application.DTOs.CategoryDTOs;
+using Shop.Application.Interfaces.Repository;
 using Shop.Infrastructure.Data;
 using ShopDomain.Models;
 
@@ -12,5 +13,15 @@ public class CategoryRepository(ShopDbContext _context):ICategoryRepository
         _context.SaveChangesAsync();
         return category.Id;
 
+    }
+
+    public Task<List<Category>?> GetAllCategoriesAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<CategoryReadDTO?> GetCategoryByIdAsync(int id)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1,10 +1,13 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using Shop.Api.Interface;
 using Shop.Api.Interfaces;
 using Shop.Api.Middlewares;
 using Shop.Api.Services;
 using Shop.Application.Interfaces.Repository;
+using Shop.Application.Interfaces.Services;
+using Shop.Application.Services;
 using Shop.Infrastructure.Data;
 using Shop.Infrastructure.Repositories;
 using System.Reflection;
@@ -58,6 +61,7 @@ namespace Shop.Api
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IImageService, ImageService>();
             var app = builder.Build();
             app.UseSwagger();
             app.UseSwaggerUI();
