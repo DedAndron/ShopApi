@@ -7,6 +7,7 @@ using Shop.Api.Middlewares;
 using Shop.Api.Services;
 using Shop.Application.Interfaces.Repository;
 using Shop.Application.Interfaces.Services;
+using Shop.Application.Mapping;
 using Shop.Application.Services;
 using Shop.Infrastructure.Data;
 using Shop.Infrastructure.Repositories;
@@ -37,6 +38,10 @@ namespace Shop.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddAutoMapper( 
+                _ => { },
+                typeof(CategoryProfile).Assembly
+            );
             builder.Services.AddDbContext<ShopDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"));
