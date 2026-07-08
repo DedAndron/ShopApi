@@ -38,4 +38,30 @@ public class CategoryController(ICategoryService _categoryService, IImageService
         }
         return Ok(categories);
     }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetCategoryById(int id)
+    {
+        CategoryReadDTO? category = await _categoryService.GetCategoryByIdAsync(id);
+        if (category == null)
+        {
+            return NotFound();
+        }
+        return Ok(category);
+    }
+    [HttpPut]
+    public async Task<IActionResult> UpdateCategory(int id, [FromForm] CategoryUpdateDTO dto)
+    {
+        var category = await _categoryService.UpdateCategoryAsync(id, dto);
+        if (category == null)
+        {
+            return NotFound();
+        }
+        return Ok(category);
+    }
+    [HttpDelete]
+    public async Task<IActionResult> DeleteCategory(int id)
+    {
+        await _categoryService.DeleteCategoryByIdAsync(id);
+        return Ok($"Category with id {id} deleted");
+    }
 }

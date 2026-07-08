@@ -53,4 +53,21 @@ public class CategoryService(ICategoryRepository _repository) : ICategoryService
             Url = category.Url,
         };
     }
+    public async Task<CategoryReadDTO?> UpdateCategoryAsync(int id, CategoryUpdateDTO dto)
+    {
+        var category = await _repository.UpdateCategoryAsync(id, dto);
+        if (category == null)
+            return null;
+        return new CategoryReadDTO()
+        {
+            Id = category.Id,
+            Name = category.Name,
+            Slug = category.Slug,
+            Url = category.Url,
+        };
+    }
+    public async Task DeleteCategoryByIdAsync(int id)
+    {
+        await _repository.DeleteCategoryByIdAsync(id);
+    }
 }

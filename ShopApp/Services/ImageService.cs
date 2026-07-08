@@ -6,7 +6,7 @@ namespace Shop.Api.Services
     {
         private static string _dirname = "categories";
 
-        public async Task<string> SaveFileAsync(IFormFile file)
+        public async Task<string> SaveFileAsync(IFormFile file, string? v)
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("File is empty.");
