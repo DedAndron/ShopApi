@@ -10,7 +10,7 @@ public class LogActionFilter : ActionFilterAttribute
         if (context.ActionArguments.TryGetValue("user", out var value))
         {
             var user = value as User;
-            if (user!=null && user.Login == "admin" && user.Id == 1)
+            if (user!=null && user.Email == "admin")
             {
                 return;
             }

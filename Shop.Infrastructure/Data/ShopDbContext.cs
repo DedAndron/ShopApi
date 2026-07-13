@@ -7,7 +7,7 @@ namespace Shop.Infrastructure.Data
     public class ShopDbContext : DbContext
     {
         public ShopDbContext(DbContextOptions<ShopDbContext> options) : base(options) { }
-
+        public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
@@ -46,6 +46,11 @@ namespace Shop.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // --- User ---
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(u=> u.Email).IsUnique();
+            });
             // --- Category ---
             modelBuilder.Entity<Category>(entity =>
             {

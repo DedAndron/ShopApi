@@ -35,7 +35,7 @@ namespace Shop.Api.Middlewares
                 }
             );
 
-                if (user?.Login == "admin" && user?.Id == 1)
+                if (user?.Email == "admin")
                 {
                     await _next(context);
                     return;

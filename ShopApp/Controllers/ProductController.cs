@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Shop.Api.Interfaces;
+using Shop.Api.Interface;
+using Shop.Api.Requests.Product;
+using Shop.Application.DTOs.ProductDTOs;
+using Shop.Application.Interfaces.Services;
 using ShopDomain.Models;
 
 namespace Shop.Api.Controllers;
@@ -8,45 +11,57 @@ namespace Shop.Api.Controllers;
 //</summary>
 [ApiController]
 [Route("api/[controller]")]
-public class ProductController(IProductService productService) : ControllerBase
+public class ProductController(IProductService _productService, IConfiguration _configuration) : ControllerBase
 {
-    //<summary>
-    //    Retrieves a list of all products.
-    //</summary>
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public List<Product> GetProducts()
+    [HttpPost]
+    public async Task<IActionResult> CreateProduct([FromForm] ProductCreateRequest dto)
     {
-        return productService.GetAllProducts();
+        var createDto = new ProductCreateDTO
+        {
+            Name = dto.Name,
+            Description = dto.Description,
+            Price = dto.Price,
+            StockQty = dto.StockQty,
+            CategoryId = dto.CategoryId,
+        };
+        var id = await _productService.CreateProductAsync(createDto);
+        return Ok($"Product created {id}");
     }
 
-    //<summary>
-    //    Retrieves a product by its ID.
-    //</summary>
-    [HttpGet("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult GetProductById([FromRoute] int id)
+    [HttpGet]
+    public async Task<IActionResult> GetAllProducts()
     {
-        var product = productService.GetAllProducts().FirstOrDefault(p => p.Id == id);
-
-        if (product is null)
+        List<ProductReadDTO>? products = await _productService.GetAllProductsAsync();
+        if (products == null || products.Count == 0)
         {
             return NotFound();
         }
-
+        return Ok(products);
+    }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetProductById(int id)
+    {
+        ProductReadDTO? product = await _productService.GetProductByIdAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
         return Ok(product);
     }
-
-    //<summary>
-    //    Adds a new product to the system.
-    //</summary>
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult AddNewProduct([FromBody] Product product)
+    [HttpPut]
+    public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductUpdateDTO dto)
     {
-        productService.AddProduct(product);
-        return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
+        var product = await _productService.UpdateProductAsync(id, dto);
+        if (product == null)
+        {
+            return NotFound();
+        }
+        return Ok(product);
+    }
+    [HttpDelete]
+    public async Task<IActionResult> DeleteProduct(int id)
+    {
+        await _productService.DeleteProductByIdAsync(id);
+        return Ok($"Product with id {id} deleted");
     }
 }
