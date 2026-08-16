@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Shop.Application.Interfaces.Repository;
 using Shop.Infrastructure.Data;
+using ShopDomain.Enum;
 using ShopDomain.Models;
 using System;
 using System.Collections.Generic;

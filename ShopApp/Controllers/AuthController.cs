@@ -47,5 +47,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
             Role = role
         });
     }
+    [Authorize]
+    [HttpPut]
 
 }

@@ -17,12 +17,12 @@ using Shop.Infrastructure.Repositories;
 using Shop.Infrastructure.Services;
 using System.Text;
 
-//DI (Dependency Injection) - реестрация любого класса и внедренние его в любую часть проекта без создания класса.
-//Middleware - небольшой компонент кода, который встраивается в конвеер обработки запроса.
-//DTO (Data Transfer Object) - простой контейнер для переноса информации между разными частями программы.
-//JWT (JSON Web Token) - стандарт для создания токенов доступа, которые позволяют безопасно передавать информацию между сторонами в виде JSON-объектов.
-//CORS (Cross-Origin Resource Sharing) - механизм, который позволяет ограничить доступ к ресурсам веб-приложения с других доменов.
-//Cache - механизм хранения данных в памяти для ускорения доступа к ним и уменьшения нагрузки на сервер.
+//DI (Dependency Injection) - реестрація будь-якого класу і впровадження його в будь-яку частину проєкту без створення класу.
+//Middleware - невеликий компонент коду, який встраюється в конвеєр обробки запиту.
+//DTO (Data Transfer Object) - простий контейнер для перенесення інформації між різними частинами програми.
+//JWT (JSON Web Token) - стандарт для створення токенів доступу, які дозволяють безпечно передавати інформацію між сторонами у вигляді JSON-об'єктів.
+//CORS (Cross-Origin Resource Sharing) - механізм, який дозволяє обмежити доступ до ресурсів веб-додатка з інших доменів.
+//Cache - механізм зберігання даних у пам'яті для пришвидшення доступу до них і зменшення навантаження на сервер.
 
 namespace Shop.Api
 {
@@ -40,14 +40,13 @@ namespace Shop.Api
 
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<ShopDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"));
             });
-
             var configuration = builder.Configuration;
             // ================= JWT Settings =================
             var jwtSettings = configuration
@@ -159,6 +158,13 @@ namespace Shop.Api
             var app = builder.Build();
 
             app.UseCors("AllowAll");
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ShopDbContext>();
+
+                DbInitializer.InitializeAsync(db).GetAwaiter().GetResult();
+            }
 
             if (app.Environment.IsDevelopment())
             {
