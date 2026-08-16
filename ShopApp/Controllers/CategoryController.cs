@@ -3,6 +3,7 @@ using Shop.Application.Interfaces.Services;
 using Shop.Application.DTOs.CategoryDTOs;
 using Shop.Api.Requests.Category;
 using Shop.Api.Interface;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Shop.Api.Controllers;
 
@@ -10,6 +11,7 @@ namespace Shop.Api.Controllers;
 [Route("api/v1/[controller]")]
 public class CategoryController(ICategoryService _categoryService, IImageService _imageService, IConfiguration _configuration):ControllerBase
 {
+    
     [HttpPost]
     public async Task<IActionResult> CreateCategory([FromForm] CategoryCreateRequest dto)
     {
@@ -31,7 +33,8 @@ public class CategoryController(ICategoryService _categoryService, IImageService
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
-        List<CategoryReadDTO>? categories = await _categoryService.GetAllCategoriesAsync();
+        
+        ICollection<CategoryReadDTO>? categories = await _categoryService.GetAllCategoriesAsync();
         if (categories == null || categories.Count == 0)
         {
             return NotFound();
@@ -49,7 +52,7 @@ public class CategoryController(ICategoryService _categoryService, IImageService
         return Ok(category);
     }
     [HttpPut]
-    public async Task<IActionResult> UpdateCategory(int id, [FromForm] CategoryUpdateDTO dto)
+    public async Task<IActionResult> UpdateCategory(int id, [FromForm] CategoryCreateDTO dto)
     {
         var category = await _categoryService.UpdateCategoryAsync(id, dto);
         if (category == null)

@@ -16,7 +16,7 @@ public class CategoryRepository(ShopDbContext _context):ICategoryRepository
 
     }
 
-    public async Task<List<Category>?> GetAllCategoriesAsync()
+    public async Task<ICollection<Category>?> GetAllCategoriesAsync()
     {
         return await _context.Categories.ToListAsync();
     }
@@ -34,7 +34,7 @@ public class CategoryRepository(ShopDbContext _context):ICategoryRepository
             Url = category.Url,
         };
     }
-    public async Task<CategoryReadDTO?> UpdateCategoryAsync(int id, CategoryUpdateDTO dto)
+    public async Task<CategoryReadDTO?> UpdateCategoryAsync(int id, CategoryCreateDTO dto)
     {
         var category = await _context.Categories.FindAsync(id);
         if (category == null)

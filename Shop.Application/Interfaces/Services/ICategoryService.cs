@@ -6,8 +6,8 @@ namespace Shop.Application.Interfaces.Services;
 public interface ICategoryService
 {
     Task<int?> CreateCategoryAsync(CategoryCreateDTO dto);
-    Task<List<CategoryReadDTO>?> GetAllCategoriesAsync();
+    Task<ICollection<CategoryReadDTO>?> GetAllCategoriesAsync();
     Task<CategoryReadDTO?> GetCategoryByIdAsync(int id);
-    Task<CategoryReadDTO?> UpdateCategoryAsync(int id, CategoryUpdateDTO dto);
+    Task<CategoryReadDTO?> UpdateCategoryAsync(int id, CategoryCreateDTO dto);
     Task DeleteCategoryByIdAsync(int id);
 }

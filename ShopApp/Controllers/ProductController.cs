@@ -31,7 +31,7 @@ public class ProductController(IProductService _productService, IConfiguration _
     [HttpGet]
     public async Task<IActionResult> GetAllProducts()
     {
-        List<ProductReadDTO>? products = await _productService.GetAllProductsAsync();
+        ICollection<ProductReadDTO>? products = await _productService.GetAllProductsAsync();
         if (products == null || products.Count == 0)
         {
             return NotFound();
@@ -49,7 +49,7 @@ public class ProductController(IProductService _productService, IConfiguration _
         return Ok(product);
     }
     [HttpPut]
-    public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductUpdateDTO dto)
+    public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductCreateDTO dto)
     {
         var product = await _productService.UpdateProductAsync(id, dto);
         if (product == null)

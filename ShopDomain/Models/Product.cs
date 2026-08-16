@@ -29,7 +29,8 @@ namespace ShopDomain.Models
         [Column("is_active")]
         public bool IsActive { get; set; } = true;
 
-        // FK до категорії    [Required]
+        // FK до категорії
+        [Required]
         [Column("category_id")]
         public int CategoryId { get; set; }
 

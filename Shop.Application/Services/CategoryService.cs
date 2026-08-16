@@ -7,7 +7,7 @@ using ShopDomain.Models;
 
 namespace Shop.Application.Services;
 
-public class CategoryService(ICategoryRepository _repository,IMapper _mapper) : ICategoryService
+public class CategoryService(ICategoryRepository _repository,IMapper _mapper,ICachingService _cacheService) : ICategoryService
 {
     public async Task<int?> CreateCategoryAsync(CategoryCreateDTO dto)
     {
@@ -15,15 +15,17 @@ public class CategoryService(ICategoryRepository _repository,IMapper _mapper) : 
         return await _repository.AddCategoryAsync(category);
     }
 
-    public async Task<List<CategoryReadDTO>?> GetAllCategoriesAsync()
+    public async Task<ICollection<CategoryReadDTO>?> GetAllCategoriesAsync()
     {
-        List<Category>? categories = await _repository.GetAllCategoriesAsync();
-        List<CategoryReadDTO>? dtos = null;
-        if (categories != null && categories.Count > 0)
+        var cache = await _cacheService.GetAsync<ICollection<CategoryReadDTO>>("Categories");
+        if (cache == null)
         {
-            dtos = _mapper.Map<List<CategoryReadDTO>>(categories);
+            var categories = await _repository.GetAllCategoriesAsync();
+            cache = _mapper.Map<ICollection<CategoryReadDTO>>(categories);
+            await _cacheService.SetAsync("Categories", cache, TimeSpan.FromMinutes(3));
+
         }
-        return dtos;
+        return cache;
     }
 
     public async Task<CategoryReadDTO?> GetCategoryByIdAsync(int id)
@@ -33,7 +35,7 @@ public class CategoryService(ICategoryRepository _repository,IMapper _mapper) : 
             return null;
         return _mapper.Map<CategoryReadDTO>(category);
     }
-    public async Task<CategoryReadDTO?> UpdateCategoryAsync(int id, CategoryUpdateDTO dto)
+    public async Task<CategoryReadDTO?> UpdateCategoryAsync(int id, CategoryCreateDTO dto)
     {
         var category = await _repository.UpdateCategoryAsync(id, dto);
         if (category == null)

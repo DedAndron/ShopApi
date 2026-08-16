@@ -10,8 +10,8 @@ namespace Shop.Application.Interfaces.Repository;
 public interface IProductRepository
 {
     Task<int?> AddProductAsync(Product product);
-    Task<List<Product>?> GetAllProductsAsync();
+    Task<ICollection<Product>?> GetAllProductsAsync();
     Task<ProductReadDTO?> GetProductByIdAsync(int id);
-    Task<ProductReadDTO?> UpdateProductAsync(int id, ProductUpdateDTO dto);
+    Task<ProductReadDTO?> UpdateProductAsync(int id, ProductCreateDTO dto);
     Task DeleteProductByIdAsync(int id);
 }

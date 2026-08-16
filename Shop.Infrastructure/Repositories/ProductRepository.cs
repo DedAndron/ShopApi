@@ -18,7 +18,7 @@ public class ProductRepository(ShopDbContext _context) : IProductRepository
         return product.Id;
     }
 
-    public async Task<List<Product>?> GetAllProductsAsync()
+    public async Task<ICollection<Product>?> GetAllProductsAsync()
     {
         return await _context.Products.ToListAsync();
     }
@@ -38,7 +38,7 @@ public class ProductRepository(ShopDbContext _context) : IProductRepository
             IsActive = product.IsActive,
         };
     }
-    public async Task<ProductReadDTO?> UpdateProductAsync(int id, ProductUpdateDTO dto)
+    public async Task<ProductReadDTO?> UpdateProductAsync(int id, ProductCreateDTO dto)
     {
         var product = await _context.Products.FindAsync(id);
         if (product == null)
@@ -47,7 +47,6 @@ public class ProductRepository(ShopDbContext _context) : IProductRepository
         product.Description = dto.Description;
         product.Price = dto.Price;
         product.StockQty = dto.StockQty;
-        product.IsActive = dto.IsActive;
         await _context.SaveChangesAsync();
         return new ProductReadDTO()
         {

@@ -1,21 +1,28 @@
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Shop.Api.Interface;
 using Shop.Api.Middlewares;
 using Shop.Api.Services;
+using Shop.Application.Interfaces.Helpers;
 using Shop.Application.Interfaces.Repository;
 using Shop.Application.Interfaces.Services;
 using Shop.Application.Mapping;
 using Shop.Application.Services;
+using Shop.Infrastructure.Configuration;
 using Shop.Infrastructure.Data;
+using Shop.Infrastructure.Helpers;
 using Shop.Infrastructure.Repositories;
-using System.Reflection;
+using Shop.Infrastructure.Services;
+using System.Text;
 
 //DI (Dependency Injection) - реестрация любого класса и внедренние его в любую часть проекта без создания класса.
 //Middleware - небольшой компонент кода, который встраивается в конвеер обработки запроса.
 //DTO (Data Transfer Object) - простой контейнер для переноса информации между разными частями программы.
 //JWT (JSON Web Token) - стандарт для создания токенов доступа, которые позволяют безопасно передавать информацию между сторонами в виде JSON-объектов.
+//CORS (Cross-Origin Resource Sharing) - механизм, который позволяет ограничить доступ к ресурсам веб-приложения с других доменов.
+//Cache - механизм хранения данных в памяти для ускорения доступа к ним и уменьшения нагрузки на сервер.
 
 namespace Shop.Api
 {
@@ -36,6 +43,30 @@ namespace Shop.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddDbContext<ShopDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"));
+            });
+
+            var configuration = builder.Configuration;
+            // ================= JWT Settings =================
+            var jwtSettings = configuration
+                .GetSection("Jwt")
+                .Get<JwtSettings>()
+                ?? throw new Exception("JWT settings not configured.");
+
+            //Реєстрація налаштувань в DI, можемо їх читати будь-де
+            builder.Services.Configure<JwtSettings>(
+                configuration.GetSection("Jwt"));
+
+            // ================= AutoMapper =================
+            builder.Services.AddAutoMapper(
+                _ => { },
+                typeof(CategoryProfile).Assembly,
+                typeof(UserProfile).Assembly
+            );
+
+            // ================= CORS =================
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
@@ -45,55 +76,106 @@ namespace Shop.Api
                           .AllowAnyHeader();
                 });
             });
-
+            //builder.Services.AddCors(options =>
+            //{
+            //    options.AddPolicy("ProductionPolicy", policy =>
+            //    {
+            //        policy.WithOrigins("https://example.com", "https://www.example.com")
+            //              .WithMethods("GET", "POST", "PUT", "DELETE")
+            //              .WithHeaders("Content-Type", "Authorization");
+            //    });
+            //});
             // Add services to the container.
-            builder.Services.AddAutoMapper( 
-                _ => { },
-                typeof(CategoryProfile).Assembly
-            );
-            builder.Services.AddDbContext<ShopDbContext>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"));
-            });
-
+            //DI container
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+
+            // ================= Swagger + JWT =================
             builder.Services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Title = "Products API",
-                    Version = "v1",
-                    Description = "API for work with products"
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Description = "Enter JWT token"
                 });
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                options.IncludeXmlComments(xmlPath);
+
+                options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+                });
             });
+            //builder.Services.AddSwaggerGen();
+            //-----------------CACHE-------------------
+            builder.Services.AddMemoryCache();
+            //--------------SERVICES-------------------
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ICachingService, MemoryCachingService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IImageService, ImageService>();
+            builder.Services.AddSingleton<IHashHelper, HashHelper>();
+            builder.Services.AddScoped<IJWTService, JWTService>();
+            //--------------REPOSITORIES
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddScoped<IProductService, ProductService>();
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-            builder.Services.AddScoped<IImageService, ImageService>();
+            //builder.Services.AddOpenApi();
+
+
+            // ================= Authentication =================
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                //Правила перевірки токена
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings.Key)
+                    ),
+
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            builder.Services.AddAuthorization();
+
             var app = builder.Build();
+
             app.UseCors("AllowAll");
-            app.UseSwagger();
-            app.UseSwaggerUI();
-            // Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment())
-            //{
-            //    app.MapOpenApi();
-            //}
 
-            //app.UseHttpsRedirection();
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
-            //app.UseAuthorization();
-            //app.UseRequestTimer();
-            //app.UseUserChecker();
+
+            app.UseHttpsRedirection();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseMiddleware<RequestTimerMiddleware>();
             app.UseStaticFiles();
             app.MapControllers();
+
+
 
             app.Run();
         }
