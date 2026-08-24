@@ -32,4 +32,17 @@ public class AuthRepository(ShopDbContext _context) : IAuthRepository
          4) Зробити токен, скоріше за все не тут будемо робити
          */
     }
+
+    public async Task<User?> ChangeUserRoleAsync(string email, UserRole role)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(user => user.Email == email);
+        if (user == null)
+            return null;
+
+        user.Role = role;
+        await _context.SaveChangesAsync();
+
+        return user;
+    }
+
 }

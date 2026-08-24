@@ -30,10 +30,14 @@ public class ProductService(IProductRepository _repository,IMapper _mapper,ICach
 
     public async Task<ProductReadDTO?> GetProductByIdAsync(int id)
     {
-        var product = await _repository.GetProductByIdAsync(id);
-        if (product == null)
-            return null;
-        return _mapper.Map<ProductReadDTO>(product);
+        var cache = await _cacheService.GetAsync<ProductReadDTO>("Products");
+        if (cache == null)
+        {
+            var categories = await _repository.GetProductByIdAsync(id);
+            cache = _mapper.Map<ProductReadDTO>(categories);
+            //await _cacheService.SetAsync("Products", cache, TimeSpan.FromMinutes(3));
+        }
+        return cache;
     }
     public async Task<ProductReadDTO?> UpdateProductAsync(int id, ProductCreateDTO dto)
     {

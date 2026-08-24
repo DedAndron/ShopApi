@@ -8,4 +8,5 @@ namespace Shop.Application.Interfaces.Services;
 public interface IAuthService
 {
     Task<(UserReadDTO? User, string? Token)> RegisterAsync(UserCreateDTO dto);
+    Task<UserReadDTO?> ChangeUserRoleAsync(string email, UserChangeRoleDTO dto);
 }

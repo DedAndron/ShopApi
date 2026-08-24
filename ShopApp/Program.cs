@@ -15,6 +15,7 @@ using Shop.Infrastructure.Data;
 using Shop.Infrastructure.Helpers;
 using Shop.Infrastructure.Repositories;
 using Shop.Infrastructure.Services;
+using StackExchange.Redis;
 using System.Text;
 
 //DI (Dependency Injection) - реестрація будь-якого класу і впровадження його в будь-яку частину проєкту без створення класу.
@@ -23,6 +24,7 @@ using System.Text;
 //JWT (JSON Web Token) - стандарт для створення токенів доступу, які дозволяють безпечно передавати інформацію між сторонами у вигляді JSON-об'єктів.
 //CORS (Cross-Origin Resource Sharing) - механізм, який дозволяє обмежити доступ до ресурсів веб-додатка з інших доменів.
 //Cache - механізм зберігання даних у пам'яті для пришвидшення доступу до них і зменшення навантаження на сервер.
+//RabbitMQ - система обміну повідомленнями, яка дозволяє різним частинам програми обмінюватися даними асинхронно.
 
 namespace Shop.Api
 {
@@ -57,6 +59,11 @@ namespace Shop.Api
             //Реєстрація налаштувань в DI, можемо їх читати будь-де
             builder.Services.Configure<JwtSettings>(
                 configuration.GetSection("Jwt"));
+
+            // ================= RabbitMQ Settings =================
+            builder.Services.Configure<RabbitMQSettings>(
+                builder.Configuration.GetSection("RabbitMq")
+            );
 
             // ================= AutoMapper =================
             builder.Services.AddAutoMapper(
@@ -108,16 +115,24 @@ namespace Shop.Api
                 });
             });
             //builder.Services.AddSwaggerGen();
-            //-----------------CACHE-------------------
-            builder.Services.AddMemoryCache();
+            
+            //======================Redis=====================
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                var config = builder.Configuration.GetConnectionString("RedisServerConnection");
+                return ConnectionMultiplexer.Connect(config);
+            });
             //--------------SERVICES-------------------
             builder.Services.AddScoped<IProductService, ProductService>();
-            builder.Services.AddScoped<ICachingService, MemoryCachingService>();
+            //builder.Services.AddScoped<ICachingService, MemoryCachingService>();
+            builder.Services.AddScoped<ICachingService, RedisCachingService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddSingleton<IHashHelper, HashHelper>();
             builder.Services.AddScoped<IJWTService, JWTService>();
+            //-----------------CACHE-------------------
+            builder.Services.AddMemoryCache();
             //--------------REPOSITORIES
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();

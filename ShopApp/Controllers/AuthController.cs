@@ -47,7 +47,14 @@ public class AuthController(IAuthService _authService) : ControllerBase
             Role = role
         });
     }
-    [Authorize]
-    [HttpPut]
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{userId:guid}/role")]
+    public async Task<IActionResult> ChangeUserRole(string email, [FromBody] UserChangeRoleDTO dto)
+    {
+        var user = await _authService.ChangeUserRoleAsync(email, dto);
+        if (user == null)
+            return NotFound("Користувача не знайдено");
 
+        return Ok(user);
+    }
 }
