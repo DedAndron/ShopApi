@@ -58,20 +58,18 @@ namespace Shop.Api
 
             //Реєстрація налаштувань в DI, можемо їх читати будь-де
             builder.Services.Configure<JwtSettings>(
-                configuration.GetSection("Jwt"));
-
+                configuration.GetSection("Jwt")
+            );
             // ================= RabbitMQ Settings =================
             builder.Services.Configure<RabbitMQSettings>(
                 builder.Configuration.GetSection("RabbitMq")
             );
-
             // ================= AutoMapper =================
             builder.Services.AddAutoMapper(
                 _ => { },
                 typeof(CategoryProfile).Assembly,
                 typeof(UserProfile).Assembly
             );
-
             // ================= CORS =================
             builder.Services.AddCors(options =>
             {
@@ -120,6 +118,7 @@ namespace Shop.Api
             builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
                 var config = builder.Configuration.GetConnectionString("RedisServerConnection");
+                
                 return ConnectionMultiplexer.Connect(config);
             });
             //--------------SERVICES-------------------
@@ -133,6 +132,9 @@ namespace Shop.Api
             builder.Services.AddScoped<IJWTService, JWTService>();
             //-----------------CACHE-------------------
             builder.Services.AddMemoryCache();
+            //-----------------RabbitMQ-------------------
+            builder.Services.AddHostedService<RabbitMQReaderService>();
+            builder.Services.AddSingleton<IQueueService, RabbitMqService>();
             //--------------REPOSITORIES
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();

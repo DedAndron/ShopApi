@@ -12,6 +12,8 @@ namespace Shop.Infrastructure.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
 
         // Автоматично встановлює CreatedAt і UpdatedAt перед збереженням
         public override int SaveChanges()

@@ -29,12 +29,12 @@ public class CategoryService(ICategoryRepository _repository,IMapper _mapper,ICa
 
     public async Task<CategoryReadDTO?> GetCategoryByIdAsync(int id)
     {
-        var cache = await _cacheService.GetAsync<CategoryReadDTO>("Categories");
+        var cache = await _cacheService.GetAsync<CategoryReadDTO>($"Category:{id}");
         if (cache == null)
         {
             var categories = await _repository.GetCategoryByIdAsync(id);
             cache = _mapper.Map<CategoryReadDTO>(categories);
-            //await _cacheService.SetAsync("Categories", cache, TimeSpan.FromMinutes(3));
+            await _cacheService.SetAsync($"Category:{id}", cache, TimeSpan.FromMinutes(3));
         }
         return cache;
     }
