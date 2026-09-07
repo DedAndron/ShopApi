@@ -13,9 +13,12 @@ public class Order : BaseEntity
     [Column("id")]
     public int Id { get; set; }
     public Guid? UserId { get; set; }
+
     [ForeignKey(nameof(UserId))]
     public User? User { get; set; }
+
     [Column("is_paid")]
     public bool Paid { get; set; } = false;
 
+    public ICollection<OrderDetail> Details { get; set; } = new List<OrderDetail>();
 }

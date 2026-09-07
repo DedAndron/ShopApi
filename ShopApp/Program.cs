@@ -25,6 +25,9 @@ using System.Text;
 //CORS (Cross-Origin Resource Sharing) - механізм, який дозволяє обмежити доступ до ресурсів веб-додатка з інших доменів.
 //Cache - механізм зберігання даних у пам'яті для пришвидшення доступу до них і зменшення навантаження на сервер.
 //RabbitMQ - система обміну повідомленнями, яка дозволяє різним частинам програми обмінюватися даними асинхронно.
+//MongoDB - документно-орієнтована база даних, яка зберігає дані у форматі JSON-подібних документів.
+//BongoDB - ще одна документно-орієнтована база даних, яка зберігає дані у форматі BSON (Binary JSON).
+//BSON (Binary JSON) - двійковий формат зберігання даних, який використовується в MongoDB і BongoDB для ефективного зберігання та передачі даних.
 
 namespace Shop.Api
 {
@@ -67,8 +70,7 @@ namespace Shop.Api
             // ================= AutoMapper =================
             builder.Services.AddAutoMapper(
                 _ => { },
-                typeof(CategoryProfile).Assembly,
-                typeof(UserProfile).Assembly
+                typeof(CategoryProfile).Assembly
             );
             // ================= CORS =================
             builder.Services.AddCors(options =>
@@ -126,6 +128,7 @@ namespace Shop.Api
             //builder.Services.AddScoped<ICachingService, MemoryCachingService>();
             builder.Services.AddScoped<ICachingService, RedisCachingService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddSingleton<IHashHelper, HashHelper>();
@@ -139,6 +142,7 @@ namespace Shop.Api
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             //builder.Services.AddOpenApi();

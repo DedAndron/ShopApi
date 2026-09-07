@@ -4,7 +4,8 @@ using System.Text;
 
 namespace Shop.Application.DTOs.OrderDTOs;
 
-public class OrderCreateDTO
+public class OrderDetailCreateDTO
 {
-    public List<OrderDetailCreateDTO> Details { get; set; } = new();
+    public int ProductId { get; set; }
+    public int Quantity { get; set; }
 }

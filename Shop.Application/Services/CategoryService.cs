@@ -48,5 +48,6 @@ public class CategoryService(ICategoryRepository _repository,IMapper _mapper,ICa
     public async Task DeleteCategoryByIdAsync(int id)
     {
         await _repository.DeleteCategoryByIdAsync(id);
+        await _cacheService.RemoveAsync($"Category:{id}");
     }
 }

@@ -49,5 +49,6 @@ public class ProductService(IProductRepository _repository,IMapper _mapper,ICach
     public async Task DeleteProductByIdAsync(int id)
     {
         await _repository.DeleteProductByIdAsync(id);
+        await _cacheService.RemoveAsync($"Product:{id}");
     }
 }

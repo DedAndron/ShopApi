@@ -8,7 +8,7 @@ namespace Shop.Api.Controllers;
 [ApiController]
 [Route("api/v1/[controller]")]
 
-public class AuthController(IAuthService _authService) : ControllerBase
+public class AuthController(IAuthService _authService, IQueueService _queueService) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] UserCreateDTO dto)
@@ -16,7 +16,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
         var user = await _authService.RegisterAsync(dto);
         if (user.User == null || user.Token == null)
             return BadRequest("Користувач за таким email вже існує");
-
+        await _queueService.PublishAsync("Users", dto);
         Response.Cookies.Append("refreshToken",user.Token,new CookieOptions
         {
             HttpOnly = true,
