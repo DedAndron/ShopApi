@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Shop.Api.Interface;
+using Shop.Api.Interfaces;
 using Shop.Api.Middlewares;
 using Shop.Api.Services;
 using Shop.Application.Interfaces.Helpers;
@@ -66,6 +67,9 @@ namespace Shop.Api
             // ================= RabbitMQ Settings =================
             builder.Services.Configure<RabbitMQSettings>(
                 builder.Configuration.GetSection("RabbitMq")
+            );
+            builder.Services.Configure<EmailSettings>(
+                builder.Configuration.GetSection("Email")
             );
             // ================= AutoMapper =================
             builder.Services.AddAutoMapper(
@@ -138,6 +142,8 @@ namespace Shop.Api
             //-----------------RabbitMQ-------------------
             builder.Services.AddHostedService<RabbitMQReaderService>();
             builder.Services.AddSingleton<IQueueService, RabbitMqService>();
+            builder.Services.AddScoped<IOrderQueueProcessor, OrderQueueProcessor>();
+            builder.Services.AddSingleton<IEmailService, SmtpEmailService>();
             //--------------REPOSITORIES
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
