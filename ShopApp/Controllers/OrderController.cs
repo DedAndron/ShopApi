@@ -1,21 +1,39 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Shop.Application.DTOs.OrderDTOs;
 using Shop.Application.Interfaces.Services;
-using Shop.Application.Services;
+using System.Security.Claims;
 
 namespace Shop.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class OrderController(IOrderService _orderService) : ControllerBase
+public class OrderController(IOrderService _orderService, IQueueService _queueService, IHttpContextAccessor _httpContextAccessor) : ControllerBase
 {
+    private const string OrdersQueue = "Orders";
+
     [HttpPost]
     public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDTO dto)
     {
-        var orderId = await _orderService.CreateOrderAsync(dto);
-        if (orderId == null)
-            return BadRequest("Failed to create order");
-        return Ok(new { OrderId = orderId });
+        if (dto.Details.Any(detail => detail.ProductId <= 0 || detail.Quantity <= 0))
+            return BadRequest("Every order item must contain a valid product ID and a positive quantity.");
+        var email = _httpContextAccessor.HttpContext?
+            .User
+            .FindFirst(ClaimTypes.Email)?
+            .Value;
+
+        if (string.IsNullOrEmpty(email))
+            return null;
+
+
+        var queuedOrder = new QueuedOrderDTO
+        {
+            Email = email,
+            Details = dto.Details
+        };
+
+        await _queueService.PublishAsync(OrdersQueue, queuedOrder);
+
+        return Accepted(new { Message = "Order has been queued for processing." });
     }
     [HttpGet]
     public async Task<IActionResult> GetAllOrders()

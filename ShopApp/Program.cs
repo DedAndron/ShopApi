@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Shop.Api.Interface;
@@ -99,6 +100,7 @@ namespace Shop.Api
             //DI container
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddHttpContextAccessor();
 
             // ================= Swagger + JWT =================
             builder.Services.AddSwaggerGen(options =>
@@ -136,7 +138,9 @@ namespace Shop.Api
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddSingleton<IHashHelper, HashHelper>();
+            builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<IJWTService, JWTService>();
+
             //-----------------CACHE-------------------
             builder.Services.AddMemoryCache();
             //-----------------RabbitMQ-------------------
