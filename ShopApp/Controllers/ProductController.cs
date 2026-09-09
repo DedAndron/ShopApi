@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Shop.Api.Interface;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Shop.Api.Requests.Product;
 using Shop.Application.DTOs.ProductDTOs;
-using Shop.Application.Interfaces.Services;
-using ShopDomain.Models;
+using Shop.Application.Interfaces.Services;    
+using Shop.Application.Queries.Product; // <- add this if GetProductByIdQuery lives here
 
 namespace Shop.Api.Controllers;
 //<summary>
@@ -11,7 +11,11 @@ namespace Shop.Api.Controllers;
 //</summary>
 [ApiController]
 [Route("api/[controller]")]
-public class ProductController(IProductService _productService, IConfiguration _configuration) : ControllerBase
+public class ProductController(
+    IProductService _productService, 
+    IConfiguration _configuration, 
+    IMediator _mediator
+    ) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateProduct([FromForm] ProductCreateRequest dto)
@@ -41,12 +45,12 @@ public class ProductController(IProductService _productService, IConfiguration _
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProductById(int id)
     {
-        ProductReadDTO? product = await _productService.GetProductByIdAsync(id);
-        if (product == null)
+        var result = await _mediator.Send(new GetProductByIdQuery(id));
+        if(result == null)
         {
             return NotFound();
         }
-        return Ok(product);
+        return Ok(result);
     }
     [HttpPut]
     public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductCreateDTO dto)

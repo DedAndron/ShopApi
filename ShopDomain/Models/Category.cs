@@ -24,7 +24,8 @@ namespace ShopDomain.Models
         [Column("url")] 
         public string Url { get; set; } = string.Empty;
 
-        // Self-referencing (підкатегорія)    [Column("parent_id")]
+        // Self-referencing (підкатегорія)
+        [Column("parent_id")]
         public int? ParentId { get; set; }
 
         [ForeignKey(nameof(ParentId))]

@@ -11,6 +11,7 @@ using Shop.Application.Interfaces.Helpers;
 using Shop.Application.Interfaces.Repository;
 using Shop.Application.Interfaces.Services;
 using Shop.Application.Mapping;
+using Shop.Application.Queries.Product;
 using Shop.Application.Services;
 using Shop.Infrastructure.Configuration;
 using Shop.Infrastructure.Data;
@@ -30,6 +31,8 @@ using System.Text;
 //MongoDB - документно-орієнтована база даних, яка зберігає дані у форматі JSON-подібних документів.
 //BongoDB - ще одна документно-орієнтована база даних, яка зберігає дані у форматі BSON (Binary JSON).
 //BSON (Binary JSON) - двійковий формат зберігання даних, який використовується в MongoDB і BongoDB для ефективного зберігання та передачі даних.
+//CQRS (Command Query Responsibility Segregation) - патерн проектування, який розділяє операції читання і запису даних на окремі моделі та сервіси.
+//Mediator - патерн проектування, який дозволяє об'єктам взаємодіяти між собою через посередника, зменшуючи залежності між ними.
 
 namespace Shop.Api
 {
@@ -148,6 +151,11 @@ namespace Shop.Api
             builder.Services.AddSingleton<IQueueService, RabbitMqService>();
             builder.Services.AddScoped<IOrderQueueProcessor, OrderQueueProcessor>();
             builder.Services.AddSingleton<IEmailService, SmtpEmailService>();
+            //===================== MediatR =================
+            builder.Services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(typeof(GetProductByIdHandler).Assembly);
+            });
             //--------------REPOSITORIES
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
