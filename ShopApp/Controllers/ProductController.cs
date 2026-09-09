@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shop.Api.Requests.Product;
 using Shop.Application.DTOs.ProductDTOs;
 using Shop.Application.Interfaces.Services;    
-using Shop.Application.Queries.Product; // <- add this if GetProductByIdQuery lives here
+using Shop.Application.Queries.Product; // adjust to the real namespace where ProductFeedbackCreateRequest is defined
 
 namespace Shop.Api.Controllers;
 //<summary>
@@ -51,6 +51,22 @@ public class ProductController(
             return NotFound();
         }
         return Ok(result);
+    }
+    [HttpPost("{productId:int}/feedback")]
+    public async Task<IActionResult> CreateProductFeedback(
+        int productId,
+        [FromBody] ProductFeedbackCreateDTO request, // use existing DTO type
+        [FromServices] IProductFeedbackService productFeedbackService)
+    {
+        var product = await _productService.GetProductByIdAsync(productId);
+        if (product is null)
+        {
+            return NotFound();
+        }
+
+        var feedbackId = await productFeedbackService.CreateAsync(request);
+
+        return Created($"api/Product/{productId}/feedback/{feedbackId}", new { id = feedbackId });
     }
     [HttpPut]
     public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductCreateDTO dto)

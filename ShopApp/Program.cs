@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using MongoDB.Driver;
 using Shop.Api.Interface;
 using Shop.Api.Interfaces;
 using Shop.Api.Middlewares;
@@ -75,6 +76,17 @@ namespace Shop.Api
             builder.Services.Configure<EmailSettings>(
                 builder.Configuration.GetSection("Email")
             );
+            // ================= MongoDB Settings =================
+            builder.Services.Configure<MongoDbSettings>(
+                builder.Configuration.GetSection("MongoDb")
+            );
+            builder.Services.AddSingleton<IMongoClient>(_ =>
+            {
+                var mongoSettings = configuration.GetSection("MongoDb").Get<MongoDbSettings>()
+                    ?? throw new InvalidOperationException("MongoDB settings are not configured.");
+
+                return new MongoClient(mongoSettings.ConnectionString);
+            });
             // ================= AutoMapper =================
             builder.Services.AddAutoMapper(
                 _ => { },
@@ -143,6 +155,7 @@ namespace Shop.Api
             builder.Services.AddSingleton<IHashHelper, HashHelper>();
             builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<IJWTService, JWTService>();
+            builder.Services.AddScoped<IProductFeedbackService, ProductFeedbackService>();
 
             //-----------------CACHE-------------------
             builder.Services.AddMemoryCache();

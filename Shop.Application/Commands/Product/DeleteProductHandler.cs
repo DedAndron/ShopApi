@@ -16,7 +16,7 @@ public class DeleteProductHandler(IProductRepository _repository) : IRequestHand
         {
             throw new KeyNotFoundException($"Product with ID {request.id} not found.");
         }
-        await _repository.DeleteProductByIdAsync(product);
+        await _repository.DeleteProductByIdAsync(product.Id);
         return product;
     }
 }
