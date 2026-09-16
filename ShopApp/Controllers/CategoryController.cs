@@ -12,7 +12,7 @@ namespace Shop.Api.Controllers;
 public class CategoryController(ICategoryService _categoryService, IImageService _imageService, IConfiguration _configuration):ControllerBase
 {
     
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateCategory([FromForm] CategoryCreateRequest dto)
     {
         if (dto.Image != null)
@@ -30,7 +30,7 @@ public class CategoryController(ICategoryService _categoryService, IImageService
         return Ok($"Category created {id}");
     }
 
-    [HttpGet]
+    [HttpGet("all")]
     public async Task<IActionResult> GetAllCategories()
     {
         
@@ -61,7 +61,7 @@ public class CategoryController(ICategoryService _categoryService, IImageService
         }
         return Ok(category);
     }
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCategory(int id)
     {
         await _categoryService.DeleteCategoryByIdAsync(id);

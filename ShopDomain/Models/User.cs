@@ -24,4 +24,6 @@ public class User : BaseEntity
 
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
+    [Column("is_verified")]
+    public bool IsVerified { get; set; } = false;
 }

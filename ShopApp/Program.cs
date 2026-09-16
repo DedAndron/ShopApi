@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using MongoDB.Driver;
@@ -22,7 +24,7 @@ using Shop.Infrastructure.Services;
 using StackExchange.Redis;
 using System.Text;
 
-//DI (Dependency Injection) - реестрація будь-якого класу і впровадження його в будь-яку частину проєкту без створення класу.
+//DI (Dependency Injection) - реєстрація будь-якого класу і впровадження його в будь-яку частину проєкту без створення класу.
 //Middleware - невеликий компонент коду, який встраюється в конвеєр обробки запиту.
 //DTO (Data Transfer Object) - простий контейнер для перенесення інформації між різними частинами програми.
 //JWT (JSON Web Token) - стандарт для створення токенів доступу, які дозволяють безпечно передавати інформацію між сторонами у вигляді JSON-об'єктів.
@@ -34,6 +36,7 @@ using System.Text;
 //BSON (Binary JSON) - двійковий формат зберігання даних, який використовується в MongoDB і BongoDB для ефективного зберігання та передачі даних.
 //CQRS (Command Query Responsibility Segregation) - патерн проектування, який розділяє операції читання і запису даних на окремі моделі та сервіси.
 //Mediator - патерн проектування, який дозволяє об'єктам взаємодіяти між собою через посередника, зменшуючи залежності між ними.
+//
 
 namespace Shop.Api
 {
@@ -179,30 +182,34 @@ namespace Shop.Api
             //builder.Services.AddOpenApi();
 
 
-            // ================= Authentication =================
+            // ================= AUTHENTICATION (JWT + COOKIES + GOOGLE) =================
             builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+              {
+                  // Для стандартних API-запитів використовуємо JWToptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                  options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options =>
             {
-                //Правила перевірки токена
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwtSettings.Key)
                     ),
-
                     ClockSkew = TimeSpan.Zero
                 };
+            })
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme) // required to store OAuth state
+            .AddGoogle(options =>
+            {
+                 options.ClientId = configuration["Authentication:Google:ClientId"]!;
+                 options.ClientSecret = configuration["Authentication:Google:ClientSecret"]!;
+                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             });
 
             builder.Services.AddAuthorization();
@@ -231,6 +238,7 @@ namespace Shop.Api
 
             app.UseMiddleware<RequestTimerMiddleware>();
             app.UseStaticFiles();
+            app.UseMiddleware<CancellationTokenHandleMidleware>();
             app.MapControllers();
 
 
