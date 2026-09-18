@@ -1,15 +1,17 @@
-﻿using MediatR;
-using Shop.Application.DTOs.ProductDTOs;
+﻿using AutoMapper;
+using MediatR;
 using Shop.Application.Interfaces.Repository;
-using AutoMapper;
+using ShopDomain.Models;
+
 
 namespace Shop.Application.Commands.Product;
 
-public class CreateProductHandler(IProductRepository _repository, IMapper _mapper) : IRequestHandler<CreateProductCommand, ProductReadDTO>
+public sealed class CreateProductHandler(IProductRepository _repository, IMapper _mapper)
+    : IRequestHandler<CreateProductCommand, int?>
 {
-    public async Task<ProductReadDTO> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+    public Task<int?> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        var product = _mapper.Map<ProductCreateDTO>(request);
-        return await _repository.AddProductAsync(product);
+        var product = _mapper.Map<Product>(request.Product);
+        return _repository.AddProductAsync(product);
     }
 }

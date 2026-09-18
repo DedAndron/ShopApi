@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Shop.Api.Requests.Product;
+using Shop.Application.Commands.Product;
 using Shop.Application.DTOs.ProductDTOs;
-using Shop.Application.Interfaces.Services;    
+using Shop.Application.Interfaces.Services;
 using Shop.Application.Queries.Product; // adjust to the real namespace where ProductFeedbackCreateRequest is defined
 
 namespace Shop.Api.Controllers;
@@ -12,8 +13,8 @@ namespace Shop.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class ProductController(
-    IProductService _productService, 
-    IConfiguration _configuration, 
+    IProductService _productService,
+    IConfiguration _configuration,
     IMediator _mediator
     ) : ControllerBase
 {
@@ -28,7 +29,7 @@ public class ProductController(
             StockQty = dto.StockQty,
             CategoryId = dto.CategoryId,
         };
-        var id = await _productService.CreateProductAsync(createDto);
+        var id = await _mediator.Send(new CreateProductCommand(createDto));
         return Ok($"Product created {id}");
     }
 
@@ -46,15 +47,14 @@ public class ProductController(
     public async Task<IActionResult> GetProductById(int id)
     {
         var result = await _mediator.Send(new GetProductByIdQuery(id));
-        if(result == null)
+        if (result == null)
         {
             return NotFound();
         }
         return Ok(result);
     }
     [HttpPost("{productId:int}/feedback")]
-    public async Task<IActionResult> CreateProductFeedback(
-        int productId,
+    public async Task<IActionResult> CreateProductFeedback(int productId,
         [FromBody] ProductFeedbackCreateDTO request, // use existing DTO type
         [FromServices] IProductFeedbackService productFeedbackService)
     {

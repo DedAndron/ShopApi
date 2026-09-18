@@ -4,20 +4,20 @@ using Microsoft.AspNetCore.Mvc;
 using Shop.Api.Interface;
 using Shop.Api.Requests.Category;
 using Shop.Application.DTOs.CategoryDTOs;
+using Shop.Application.Commands.Category;
 using Shop.Application.Interfaces.Services;
 using Shop.Application.Queries.Category;
-using MediatR;
 
 namespace Shop.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class CategoryController(IMediator _mediator, 
-    ICategoryService _categoryService, 
-    IImageService _imageService, 
+public class CategoryController(IMediator _mediator,
+    ICategoryService _categoryService,
+    IImageService _imageService,
     IConfiguration _configuration) : ControllerBase
 {
-    
+
     [HttpPost("create")]
     public async Task<IActionResult> CreateCategory([FromForm] CategoryCreateRequest dto)
     {
@@ -32,14 +32,14 @@ public class CategoryController(IMediator _mediator,
             Slug = dto.Slug,
             ParentId = dto.ParentId,
         };
-        var id = await _categoryService.CreateCategoryAsync(createDto);
+        var id = await _mediator.Send(new CreateCategoryCommand(createDto));
         return Ok($"Category created {id}");
     }
 
     [HttpGet("all")]
     public async Task<IActionResult> GetAllCategories()
     {
-        
+
         ICollection<CategoryReadDTO>? categories = await _categoryService.GetAllCategoriesAsync();
         if (categories == null || categories.Count == 0)
         {
@@ -47,7 +47,7 @@ public class CategoryController(IMediator _mediator,
         }
         return Ok(categories);
     }
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetCategoryById(int id)
     {
         var result = await _mediator.Send(new GetCategoryByIdQuery(id));

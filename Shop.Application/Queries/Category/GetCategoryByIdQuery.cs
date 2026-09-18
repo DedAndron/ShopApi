@@ -6,4 +6,4 @@ using System.Text;
 
 namespace Shop.Application.Queries.Category;
 
-public record GetCategoryByIdQuery(int id) : IRequest<CategoryReadDTO>;
+public sealed record GetCategoryByIdQuery(int Id) : IRequest<CategoryReadDTO?>;

@@ -6,5 +6,5 @@ using System.Text;
 
 namespace Shop.Application.Queries.Category
 {
-    public record GetCategoryBySlugQuery(string slug) : IRequest<CategoryReadDTO>;
+    public sealed record GetCategoryBySlugQuery(string Slug) : IRequest<CategoryReadDTO?>;
 }
