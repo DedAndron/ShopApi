@@ -38,6 +38,7 @@ public class ProductRepository(ShopDbContext _context) : IProductRepository
             IsActive = product.IsActive,
         };
     }
+
     public async Task<ProductReadDTO?> UpdateProductAsync(int id, ProductCreateDTO dto)
     {
         var product = await _context.Products.FindAsync(id);
@@ -67,4 +68,5 @@ public class ProductRepository(ShopDbContext _context) : IProductRepository
             await _context.SaveChangesAsync();
         }
     }
+
 }

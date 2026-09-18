@@ -1,15 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Shop.Application.Interfaces.Services;
-using Shop.Application.DTOs.CategoryDTOs;
-using Shop.Api.Requests.Category;
-using Shop.Api.Interface;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Shop.Api.Interface;
+using Shop.Api.Requests.Category;
+using Shop.Application.DTOs.CategoryDTOs;
+using Shop.Application.Interfaces.Services;
+using Shop.Application.Queries.Category;
+using MediatR;
 
 namespace Shop.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class CategoryController(ICategoryService _categoryService, IImageService _imageService, IConfiguration _configuration):ControllerBase
+public class CategoryController(IMediator _mediator, 
+    ICategoryService _categoryService, 
+    IImageService _imageService, 
+    IConfiguration _configuration) : ControllerBase
 {
     
     [HttpPost("create")]
@@ -44,12 +50,22 @@ public class CategoryController(ICategoryService _categoryService, IImageService
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCategoryById(int id)
     {
-        CategoryReadDTO? category = await _categoryService.GetCategoryByIdAsync(id);
-        if (category == null)
+        var result = await _mediator.Send(new GetCategoryByIdQuery(id));
+        if (result == null)
         {
             return NotFound();
         }
-        return Ok(category);
+        return Ok(result);
+    }
+    [HttpGet("{slug}")]
+
+    public async Task<ActionResult<CategoryReadDTO>> GetCategoryBySlug(string slug)
+    {
+        var result = await _mediator.Send(new GetCategoryBySlugQuery(slug));
+        if (result == null)
+            return NotFound();
+
+        return Ok(result);
     }
     [HttpPut]
     public async Task<IActionResult> UpdateCategory(int id, [FromForm] CategoryCreateDTO dto)

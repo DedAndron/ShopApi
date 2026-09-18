@@ -34,6 +34,19 @@ public class CategoryRepository(ShopDbContext _context):ICategoryRepository
             Url = category.Url,
         };
     }
+    public async Task<CategoryReadDTO?> GetCategoryBySlugAsync(string slug)
+    {
+        var category = await _context.Categories.FirstOrDefaultAsync(c => c.Slug == slug);
+        if (category == null)
+            return null;
+        return new CategoryReadDTO()
+        {
+            Id = category.Id,
+            Name = category.Name,
+            Slug = category.Slug,
+            Url = category.Url,
+        };
+    }
     public async Task<CategoryReadDTO?> UpdateCategoryAsync(int id, CategoryCreateDTO dto)
     {
         var category = await _context.Categories.FindAsync(id);

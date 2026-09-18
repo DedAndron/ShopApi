@@ -8,6 +8,7 @@ public interface ICategoryService
     Task<int?> CreateCategoryAsync(CategoryCreateDTO dto);
     Task<ICollection<CategoryReadDTO>?> GetAllCategoriesAsync();
     Task<CategoryReadDTO?> GetCategoryByIdAsync(int id);
+    Task<CategoryReadDTO?> GetCategoryBySlugAsync(string slug);
     Task<CategoryReadDTO?> UpdateCategoryAsync(int id, CategoryCreateDTO dto);
     Task DeleteCategoryByIdAsync(int id);
 }
