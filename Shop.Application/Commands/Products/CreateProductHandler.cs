@@ -4,7 +4,7 @@ using Shop.Application.Interfaces.Repository;
 using ShopDomain.Models;
 
 
-namespace Shop.Application.Commands.Product;
+namespace Shop.Application.Commands.Products;
 
 public sealed class CreateProductHandler(IProductRepository _repository, IMapper _mapper)
     : IRequestHandler<CreateProductCommand, int?>

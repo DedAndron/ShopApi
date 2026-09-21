@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Shop.Application.Commands.Product;
+namespace Shop.Application.Commands.Products;
 
 public class DeleteProductHandler(IProductRepository _repository) : IRequestHandler<DeleteProductCommand, ProductReadDTO>
 {

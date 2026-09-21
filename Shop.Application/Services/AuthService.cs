@@ -3,6 +3,7 @@ using Shop.Application.DTOs.UserDTOs;
 using Shop.Application.Interfaces.Helpers;
 using Shop.Application.Interfaces.Repository;
 using Shop.Application.Interfaces.Services;
+using Shop.Application.DTOs.DeliveryAddressDTOs;
 using ShopDomain.Enum;
 using ShopDomain.Models;
 using System;
@@ -43,6 +44,13 @@ public class AuthService(IMapper _mapper, IAuthRepository _repository, IHashHelp
             return null;
 
         return _mapper.Map<UserReadDTO>(user);
+    }
+    public async Task<DeliveryAddressReadDTO?> AddDeliveryAddressAsync(string email, DeliveryAddressCreateDTO dto, CancellationToken cancellationToken)
+    {
+        var address = _mapper.Map<DeliveryAddress>(dto);
+        var createdAddress = await _repository.AddDeliveryAddressAsync(email, address, cancellationToken);
+
+        return createdAddress is null ? null : _mapper.Map<DeliveryAddressReadDTO>(createdAddress);
     }
 
 }

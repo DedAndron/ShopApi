@@ -14,6 +14,7 @@ namespace Shop.Infrastructure.Data
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<DeliveryAddress> DeliveryAddresses { get; set; }
 
         // Автоматично встановлює CreatedAt і UpdatedAt перед збереженням
         public override int SaveChanges()
@@ -53,6 +54,14 @@ namespace Shop.Infrastructure.Data
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(u=> u.Email).IsUnique();
+            });
+            // --- DeliveryAddress ---
+            modelBuilder.Entity<DeliveryAddress>(entity =>
+            {
+                entity.HasOne(address => address.User)
+                      .WithMany(user => user.DeliveryAddresses)
+                      .HasForeignKey(address => address.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
             // --- Category ---
             modelBuilder.Entity<Category>(entity =>

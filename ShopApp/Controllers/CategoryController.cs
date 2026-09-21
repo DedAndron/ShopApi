@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shop.Api.Interface;
 using Shop.Api.Requests.Category;
 using Shop.Application.DTOs.CategoryDTOs;
-using Shop.Application.Commands.Category;
+using Shop.Application.Commands.Categories;
 using Shop.Application.Interfaces.Services;
 using Shop.Application.Queries.Category;
 

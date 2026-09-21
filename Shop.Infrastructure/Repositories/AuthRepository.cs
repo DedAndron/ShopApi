@@ -44,5 +44,18 @@ public class AuthRepository(ShopDbContext _context) : IAuthRepository
 
         return user;
     }
+    public async Task<DeliveryAddress?> AddDeliveryAddressAsync(string email, DeliveryAddress address, CancellationToken cancellationToken)
+    {
+        var user = await _context.Users
+            .SingleOrDefaultAsync(user => user.Email == email, cancellationToken);
+        if (user is null)
+            return null;
+
+        address.UserId = user.Id;
+        await _context.DeliveryAddresses.AddAsync(address, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return address;
+    }
 
 }

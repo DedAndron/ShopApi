@@ -11,4 +11,5 @@ public interface IAuthRepository
     Task<User>? RegisterUserAsync(User user, string hash);
     Task<bool> IsExistEmailAsync(string email);
     Task<User?> ChangeUserRoleAsync(string email, UserRole role);
+    Task<DeliveryAddress?> AddDeliveryAddressAsync(string email, DeliveryAddress address, CancellationToken cancellationToken);
 }

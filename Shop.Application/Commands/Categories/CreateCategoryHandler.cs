@@ -3,7 +3,7 @@ using MediatR;
 using Shop.Application.Interfaces.Repository;
 using ShopDomain.Models;
 
-namespace Shop.Application.Commands.Category;
+namespace Shop.Application.Commands.Categories;
 
 public sealed class CreateCategoryHandler(ICategoryRepository repository, IMapper mapper)
     : IRequestHandler<CreateCategoryCommand, int?>

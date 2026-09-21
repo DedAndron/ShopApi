@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Shop.Api.Requests.Product;
-using Shop.Application.Commands.Product;
+using Shop.Application.Commands.Products;
 using Shop.Application.DTOs.ProductDTOs;
 using Shop.Application.Interfaces.Services;
 using Shop.Application.Queries.Product; // adjust to the real namespace where ProductFeedbackCreateRequest is defined

@@ -26,4 +26,5 @@ public class User : BaseEntity
     public bool IsActive { get; set; } = true;
     [Column("is_verified")]
     public bool IsVerified { get; set; } = false;
+    public ICollection<DeliveryAddress> DeliveryAddresses { get; set; } = [];
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Formatters.Xml;
 using Shop.Application.DTOs.UserDTOs;
 using Shop.Application.Interfaces.Services;
 using System.Security.Claims;
+using Shop.Application.DTOs.DeliveryAddressDTOs;
 
 namespace Shop.Api.Controllers;
 
@@ -112,6 +113,22 @@ public class AuthController(IAuthService _authService, IQueueService _queueServi
             Email = email,
             Role = role
         });
+    }
+    [Authorize]
+    [HttpPost("addresses")]
+    public async Task<IActionResult> AddDeliveryAddress(
+        [FromBody] DeliveryAddressCreateDTO dto,
+        CancellationToken cancellationToken)
+    {
+        var email = User.FindFirstValue(ClaimTypes.Email);
+        if (string.IsNullOrWhiteSpace(email))
+            return Unauthorized();
+
+        var address = await _authService.AddDeliveryAddressAsync(email, dto, cancellationToken);
+        if (address is null)
+            return NotFound("Користувача не знайдено");
+
+        return CreatedAtAction(nameof(Profile), new { }, address);
     }
     [Authorize(Roles = "Admin")]
     [HttpPut("{userId:guid}/role")]
