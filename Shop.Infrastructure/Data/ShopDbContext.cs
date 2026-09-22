@@ -15,6 +15,8 @@ namespace Shop.Infrastructure.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<DeliveryAddress> DeliveryAddresses { get; set; }
+        public DbSet<Provider> Providers { get; set; }
+        public DbSet<UserProvider> UserProviders { get; set; }
 
         // Автоматично встановлює CreatedAt і UpdatedAt перед збереженням
         public override int SaveChanges()
@@ -54,6 +56,31 @@ namespace Shop.Infrastructure.Data
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(u=> u.Email).IsUnique();
+            });
+            // --- External authentication providers ---
+            modelBuilder.Entity<Provider>(entity =>
+            {
+                entity.HasIndex(provider => provider.Name).IsUnique();
+                entity.HasData(
+                    new Provider { Id = 1, Name = "google" },
+                    new Provider { Id = 2, Name = "fb" },
+                    new Provider { Id = 3, Name = "apple" });
+            });
+
+            modelBuilder.Entity<UserProvider>(entity =>
+            {
+                entity.HasIndex(userProvider => new { userProvider.UserId, userProvider.ProviderId }).IsUnique();
+                entity.HasIndex(userProvider => new { userProvider.ProviderId, userProvider.NumberProvider }).IsUnique();
+
+                entity.HasOne(userProvider => userProvider.User)
+                      .WithMany(user => user.UserProviders)
+                      .HasForeignKey(userProvider => userProvider.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(userProvider => userProvider.Provider)
+                      .WithMany(provider => provider.UserProviders)
+                      .HasForeignKey(userProvider => userProvider.ProviderId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
             // --- DeliveryAddress ---
             modelBuilder.Entity<DeliveryAddress>(entity =>

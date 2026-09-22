@@ -21,13 +21,15 @@ public class JWTService : IJWTService
         _jwtSettings = jwtOptions.Value;
     }
 
-    public string GenerateAccessToken(UserLoginDTO userLoginDto, string role)
+    public string GenerateAccessToken(UserLoginDTO userLoginDto, string role) =>
+        GenerateAccessToken(userLoginDto.Email, role);
+    public string GenerateAccessToken(string email, string role)
     {
         var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Email, userLoginDto.Email),
+            new Claim(ClaimTypes.Email, email),
             new Claim(ClaimTypes.Role, role),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
@@ -45,7 +47,8 @@ public class JWTService : IJWTService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public (string, int) GenerateRefreshToken()
+
+    public (string Token, int ExpiresIn) GenerateRefreshToken()
     {
         return (Convert.ToBase64String(
             RandomNumberGenerator.GetBytes(64)), _jwtSettings.ExpiresRefreshTokenDay);

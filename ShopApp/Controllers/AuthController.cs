@@ -3,18 +3,21 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters.Xml;
+using Microsoft.EntityFrameworkCore;
+using Shop.Application.DTOs.DeliveryAddressDTOs;
 using Shop.Application.DTOs.UserDTOs;
 using Shop.Application.Interfaces.Services;
+using Shop.Infrastructure.Data;
+using ShopDomain.Models;
 using System.Security.Claims;
-using Shop.Application.DTOs.DeliveryAddressDTOs;
+using System.Security.Cryptography;
 
 namespace Shop.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
 
-public class AuthController(IAuthService _authService, IQueueService _queueService) : ControllerBase
+public class AuthController(IAuthService _authService, IQueueService _queueService, ShopDbContext _dbContext, IJWTService _jwtService) : ControllerBase
 {
     // Вхід через Google
     [HttpGet("login-google")]
@@ -54,14 +57,67 @@ public class AuthController(IAuthService _authService, IQueueService _queueServi
         var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
         var providerId = claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(providerId))
+            return BadRequest("Зовнішній провайдер не повернув email або ідентифікатор користувача.");
 
+        const string providerName = "google";
+        var provider = await _dbContext.Providers.SingleAsync(provider => provider.Name == providerName);
+        var user = await _dbContext.Users.SingleOrDefaultAsync(user => user.Email == email);
 
-        // Тут зазвичай виконується:
-        // 1. Пошук користувача в БД за email/providerId.
-        // 2. Реєстрація нового користувача, якщо його немає.
-        // 3. Генерація власного JWT (якщо це SPA / Mobile) або встановлення локальної сесії.
+        if (user is null)
+        {
+            user = new User
+            {
+                Email = email,
+                PasswordHash = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
+                IsVerified = true
+            };
+            _dbContext.Users.Add(user);
+        }
 
-        return Ok(new { Name = name, Email = email, ProviderId = providerId });
+        var linkedProvider = await _dbContext.UserProviders.SingleOrDefaultAsync(link =>
+            link.ProviderId == provider.Id && link.NumberProvider == providerId);
+
+        if (linkedProvider is not null && linkedProvider.UserId != user.Id)
+            return Conflict("Цей обліковий запис зовнішнього провайдера вже прив'язаний до іншого користувача.");
+
+        var userProvider = await _dbContext.UserProviders.SingleOrDefaultAsync(link =>
+            link.UserId == user.Id && link.ProviderId == provider.Id);
+
+        if (userProvider is not null && userProvider.NumberProvider != providerId)
+            return Conflict("Користувач вже має інший обліковий запис цього провайдера.");
+
+        if (linkedProvider is null && userProvider is null)
+        {
+            _dbContext.UserProviders.Add(new UserProvider
+            {
+                User = user,
+                ProviderId = provider.Id,
+                NumberProvider = providerId
+            });
+        }
+
+        var (refreshTokenValue, expiresInDays) = _jwtService.GenerateRefreshToken();
+        _dbContext.RefreshTokens.Add(new RefreshToken
+        {
+            Token = refreshTokenValue,
+            ExpiresAt = DateTime.UtcNow.AddDays(expiresInDays),
+            User = user
+        });
+
+        await _dbContext.SaveChangesAsync();
+
+        var accessToken = _jwtService.GenerateAccessToken(user.Email, user.Role.ToString());
+
+        Response.Cookies.Append("refreshToken", refreshTokenValue, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(expiresInDays)
+        });
+
+        return Ok(new { Name = name, Email = user.Email, ProviderId = providerId, AccessToken = accessToken });
 
     }
     [HttpPost("logout")]

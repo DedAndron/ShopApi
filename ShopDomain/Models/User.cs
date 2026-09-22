@@ -27,4 +27,5 @@ public class User : BaseEntity
     [Column("is_verified")]
     public bool IsVerified { get; set; } = false;
     public ICollection<DeliveryAddress> DeliveryAddresses { get; set; } = [];
+    public ICollection<UserProvider> UserProviders { get; set; } = [];
 }
