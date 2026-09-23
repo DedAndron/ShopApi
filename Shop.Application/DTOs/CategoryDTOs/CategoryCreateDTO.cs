@@ -1,4 +1,6 @@
-﻿namespace Shop.Application.DTOs.CategoryDTOs;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Shop.Application.DTOs.CategoryDTOs;
 
 public class CategoryCreateDTO
 {
