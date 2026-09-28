@@ -12,8 +12,9 @@ public class CategoryCreateDTOValidator : AbstractValidator<CategoryCreateDTO>
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Category name is required.")
-            .MaximumLength(100).WithMessage("Category name must not exceed 100 characters.");
+            .MaximumLength(10).WithMessage("Category name must not exceed 10 characters.");
         RuleFor(x => x.Slug)
+            .NotEmpty().WithMessage("Category slug is required.")
             .MaximumLength(100).WithMessage("Category slug must not exceed 100 characters.");
     }
 }
