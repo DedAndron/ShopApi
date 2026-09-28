@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ using Shop.Application.Interfaces.Services;
 using Shop.Application.Mapping;
 using Shop.Application.Queries.Product;
 using Shop.Application.Services;
+using Shop.Application.Validators.Category;
 using Shop.Infrastructure.Configuration;
 using Shop.Infrastructure.Data;
 using Shop.Infrastructure.Helpers;
@@ -147,6 +149,9 @@ namespace Shop.Api
                 
                 return ConnectionMultiplexer.Connect(config);
             });
+
+            //======================VALIDATORS=================
+            builder.Services.AddValidatorsFromAssemblyContaining<CategoryCreateDTOValidator>();
             //--------------SERVICES-------------------
             builder.Services.AddScoped<IProductService, ProductService>();
             //builder.Services.AddScoped<ICachingService, MemoryCachingService>();
@@ -211,6 +216,7 @@ namespace Shop.Api
                  options.ClientSecret = configuration["Authentication:Google:ClientSecret"]!;
                  options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             });
+            builder.Services.AddControllers(options => { options.ModelValidatorProviders.Clear(); });
 
             builder.Services.AddAuthorization();
 

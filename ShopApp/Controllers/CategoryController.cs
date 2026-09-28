@@ -7,6 +7,8 @@ using Shop.Application.DTOs.CategoryDTOs;
 using Shop.Application.Commands.Categories;
 using Shop.Application.Interfaces.Services;
 using Shop.Application.Queries.Category;
+using Shop.Application.Validators.Category;
+using FluentValidation;
 
 namespace Shop.Api.Controllers;
 
@@ -15,7 +17,8 @@ namespace Shop.Api.Controllers;
 public class CategoryController(IMediator _mediator,
     ICategoryService _categoryService,
     IImageService _imageService,
-    IConfiguration _configuration) : ControllerBase
+    IConfiguration _configuration,
+    IValidator<CategoryCreateDTO> _validator) : ControllerBase
 {
 
     [HttpPost("create")]
@@ -32,6 +35,11 @@ public class CategoryController(IMediator _mediator,
             Slug = dto.Slug,
             ParentId = dto.ParentId,
         };
+        var result = await _validator.ValidateAsync(createDto);
+        if (!result.IsValid)
+        {
+            return BadRequest(result.Errors);
+        }
         var id = await _mediator.Send(new CreateCategoryCommand(createDto));
         return Ok($"Category created {id}");
     }

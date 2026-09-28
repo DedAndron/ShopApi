@@ -18,7 +18,7 @@ public class ProductController(
     IMediator _mediator
     ) : ControllerBase
 {
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateProduct([FromForm] ProductCreateRequest dto)
     {
         var createDto = new ProductCreateDTO
@@ -33,7 +33,7 @@ public class ProductController(
         return Ok($"Product created {id}");
     }
 
-    [HttpGet]
+    [HttpGet("all")]
     public async Task<IActionResult> GetAllProducts()
     {
         ICollection<ProductReadDTO>? products = await _productService.GetAllProductsAsync();
