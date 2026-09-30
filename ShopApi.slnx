@@ -1,7 +1,9 @@
 <Solution>
+  <Project Path="MyCalculator/MyCalculator.csproj" Id="016b05ab-6b80-480b-82bf-e6496b7120c3" />
   <Project Path="RabbitMQReader/RabbitMQReader.csproj" Id="eef59131-a7bd-491b-8982-dbfa406623fb" />
   <Project Path="Shop.Application/Shop.Application.csproj" Id="c33ac6ae-d568-4ded-a0f9-65aff55e40e2" />
   <Project Path="Shop.Infrastructure/Shop.Infrastructure.csproj" Id="65f8baeb-961d-4b96-bb6e-bce00b3cbee8" />
+  <Project Path="Shop.Test/Shop.Test.csproj" Id="f942c918-b0b7-48c0-a45e-5ec86e26a926" />
   <Project Path="ShopApp/Shop.Api.csproj" />
   <Project Path="ShopDomain/ShopDomain.csproj" />
 </Solution>

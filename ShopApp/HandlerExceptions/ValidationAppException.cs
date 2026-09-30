@@ -1,0 +1,10 @@
+﻿namespace Shop.Api.HandlerExceptions;
+
+public class ValidationAppException : Exception
+{
+    public Dictionary<string, string[]> Errors { get; }
+    public ValidationAppException(Dictionary<string, string[]> errors) : base("Validation failed")
+    {
+        Errors = errors;
+    }
+}

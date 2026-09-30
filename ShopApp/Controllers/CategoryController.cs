@@ -7,7 +7,7 @@ using Shop.Application.DTOs.CategoryDTOs;
 using Shop.Application.Commands.Categories;
 using Shop.Application.Interfaces.Services;
 using Shop.Application.Queries.Category;
-using Shop.Application.Validators.Category;
+using Shop.Api.HandlerExceptions;
 using FluentValidation;
 
 namespace Shop.Api.Controllers;

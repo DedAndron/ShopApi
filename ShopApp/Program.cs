@@ -25,6 +25,7 @@ using Shop.Infrastructure.Data;
 using Shop.Infrastructure.Helpers;
 using Shop.Infrastructure.Repositories;
 using Shop.Infrastructure.Services;
+using ShopApp.HandlerExceptions;
 using StackExchange.Redis;
 using System.Text;
 
@@ -40,7 +41,7 @@ using System.Text;
 //BSON (Binary JSON) - двійковий формат зберігання даних, який використовується в MongoDB і BongoDB для ефективного зберігання та передачі даних.
 //CQRS (Command Query Responsibility Segregation) - патерн проектування, який розділяє операції читання і запису даних на окремі моделі та сервіси.
 //Mediator - патерн проектування, який дозволяє об'єктам взаємодіяти між собою через посередника, зменшуючи залежності між ними.
-//
+//AAA - патерн тестування, який складається з трьох етапів: Arrange (підготовка), Act (виконання) і Assert (перевірка).
 
 namespace Shop.Api
 {
@@ -123,6 +124,7 @@ namespace Shop.Api
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddProblemDetails();
 
             // ================= Swagger + JWT =================
             builder.Services.AddSwaggerGen(options =>
@@ -151,7 +153,7 @@ namespace Shop.Api
                 
                 return ConnectionMultiplexer.Connect(config);
             });
-
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             //======================VALIDATORS=================
             builder.Services.AddValidatorsFromAssemblyContaining<CategoryCreateDTOValidator>();
             builder.Services.AddValidatorsFromAssemblyContaining<ProductCreateDTOValidator>();
@@ -168,7 +170,7 @@ namespace Shop.Api
             builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<IJWTService, JWTService>();
             builder.Services.AddScoped<IProductFeedbackService, ProductFeedbackService>();
-
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             //-----------------CACHE-------------------
             builder.Services.AddMemoryCache();
             //-----------------RabbitMQ-------------------
@@ -241,7 +243,7 @@ namespace Shop.Api
                 app.UseSwaggerUI();
             }
 
-
+            app.UseExceptionHandler();
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
