@@ -14,17 +14,12 @@ namespace ShopDomain.Models
         [Column("id")]
         public int Id { get; set; }
 
-        [Required]
-        [Column("url")]
-        public string Url { get; set; } = string.Empty;
-
-        [Column("is_primary")]
-        public bool IsPrimary { get; set; } = false;
-
         [Column("product_id")]
         public int ProductId { get; set; }
 
         [ForeignKey(nameof(ProductId))]
         public Product Product { get; set; } = null!;
+        [Column("file_name")]
+        public string FileName { get; set; } = string.Empty;
     }
 }

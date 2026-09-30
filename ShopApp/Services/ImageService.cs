@@ -4,23 +4,34 @@ namespace Shop.Api.Services
 {
     public class ImageService(IWebHostEnvironment _environment) : IImageService
     {
-        private static string _dirname = "categories";
-
-        public async Task<string> SaveFileAsync(IFormFile file, string? v)
+        public async Task<string?> SaveFileAsync(
+            IFormFile file,
+            string folder)
         {
             if (file == null || file.Length == 0)
-                throw new ArgumentException("File is empty.");
+                return null;
 
-            var folderPath = Path.Combine(_environment.WebRootPath, _dirname);
-            Directory.CreateDirectory(folderPath);
+            var uploadsFolder = Path.Combine(
+                _environment.WebRootPath,
+                folder
+            );
 
-            // Унікальна назва файлу
+            Directory.CreateDirectory(uploadsFolder);
 
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var extension = Path.GetExtension(file.FileName);
 
-            var filePath = Path.Combine(folderPath, fileName);
+            var fileName = $"{Guid.NewGuid()}{extension}";
 
-            await using var stream = new FileStream(filePath, FileMode.Create);
+            var filePath = Path.Combine(
+                uploadsFolder,
+                fileName
+            );
+
+            await using var stream = new FileStream(
+                filePath,
+                FileMode.Create
+            );
+
             await file.CopyToAsync(stream);
 
             return fileName;

@@ -1,6 +1,10 @@
-﻿using MediatR;
+﻿using Microsoft.AspNetCore.Http;
+using MediatR;
 using Shop.Application.DTOs.ProductDTOs;
 
 namespace Shop.Application.Commands.Products;
 
-public sealed record CreateProductCommand(ProductCreateDTO Product) : IRequest<int?>;
+public record CreateProductCommand(
+    ProductCreateDTO Product,
+    IFormFile? Image
+) : IRequest<int>;

@@ -2,7 +2,8 @@
 {
     public interface IImageService
     {
-        Task<string> SaveFileAsync(IFormFile file, string? v);
+        Task<string?> SaveFileAsync(
+            IFormFile file,
+            string folder);
     }
-
 }

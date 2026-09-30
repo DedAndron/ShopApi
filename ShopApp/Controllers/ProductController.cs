@@ -11,7 +11,7 @@ namespace Shop.Api.Controllers;
 //    Product controller for handling product-related operations.
 //</summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class ProductController(
     IProductService _productService,
     IConfiguration _configuration,
@@ -19,7 +19,8 @@ public class ProductController(
     ) : ControllerBase
 {
     [HttpPost("create")]
-    public async Task<IActionResult> CreateProduct([FromForm] ProductCreateRequest dto)
+    public async Task<IActionResult> CreateProduct(
+    [FromForm] ProductCreateRequest dto)
     {
         var createDto = new ProductCreateDTO
         {
@@ -27,9 +28,18 @@ public class ProductController(
             Description = dto.Description,
             Price = dto.Price,
             StockQty = dto.StockQty,
-            CategoryId = dto.CategoryId,
+            CategoryId = dto.CategoryId
         };
-        var id = await _mediator.Send(new CreateProductCommand(createDto));
+
+        var id = await _mediator.Send(
+            new CreateProductCommand(createDto, dto.Image)
+        );
+
+        if (dto.Image != null)
+        {
+            // Сохранить изображение и связать его с продуктом
+        }
+
         return Ok($"Product created {id}");
     }
 
