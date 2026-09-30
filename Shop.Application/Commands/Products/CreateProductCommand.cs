@@ -7,4 +7,4 @@ namespace Shop.Application.Commands.Products;
 public record CreateProductCommand(
     ProductCreateDTO Product,
     IFormFile? Image
-) : IRequest<int>;
+) : IRequest<int?>;

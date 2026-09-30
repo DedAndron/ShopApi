@@ -35,11 +35,6 @@ public class ProductController(
             new CreateProductCommand(createDto, dto.Image)
         );
 
-        if (dto.Image != null)
-        {
-            // Сохранить изображение и связать его с продуктом
-        }
-
         return Ok($"Product created {id}");
     }
 

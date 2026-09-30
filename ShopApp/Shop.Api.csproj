@@ -31,4 +31,8 @@
     <ProjectReference Include="..\ShopDomain\ShopDomain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Interface\" />
+  </ItemGroup>
+
 </Project>

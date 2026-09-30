@@ -17,18 +17,27 @@ public class ProductRepository(ShopDbContext _context) : IProductRepository
         await _context.SaveChangesAsync();
         return product.Id;
     }
+    public async Task AddProductImageAsync(ProductImage image)
+    {
+        _context.ProductImages.Add(image);
+        await _context.SaveChangesAsync();
+    }
 
     public async Task<ICollection<Product>?> GetAllProductsAsync()
     {
-        return await _context.Products.ToListAsync();
+        return await _context.Products
+            .Include(p => p.Images)
+            .ToListAsync();
     }
 
     public async Task<ProductReadDTO?> GetProductByIdAsync(int id)
     {
-        var product = await _context.Products.FindAsync(id);
+        var product = await _context.Products
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
             return null;
-        return new ProductReadDTO()
+        return new ProductReadDTO
         {
             Id = product.Id,
             Name = product.Name,
@@ -36,12 +45,18 @@ public class ProductRepository(ShopDbContext _context) : IProductRepository
             Price = product.Price,
             StockQty = product.StockQty,
             IsActive = product.IsActive,
+            CategoryId = product.CategoryId,
+            Image = product.Images
+                .Select(x => x.FileName)
+                .FirstOrDefault()
         };
     }
 
     public async Task<ProductReadDTO?> UpdateProductAsync(int id, ProductCreateDTO dto)
     {
-        var product = await _context.Products.FindAsync(id);
+        var product = await _context.Products
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
             return null;
         product.Name = dto.Name;
@@ -49,14 +64,16 @@ public class ProductRepository(ShopDbContext _context) : IProductRepository
         product.Price = dto.Price;
         product.StockQty = dto.StockQty;
         await _context.SaveChangesAsync();
-        return new ProductReadDTO()
+        return new ProductReadDTO
         {
             Id = product.Id,
             Name = product.Name,
             Description = product.Description,
             Price = product.Price,
             StockQty = product.StockQty,
-            IsActive = product.IsActive,
+            Image = product.Images
+                .Select(x => x.FileName)
+                .FirstOrDefault()
         };
     }
     public async Task DeleteProductByIdAsync(int id)

@@ -11,7 +11,14 @@ public class ProductProfile : Profile
 {
     public ProductProfile()
     {
-        CreateMap<ProductCreateDTO, Product>();
-        CreateMap<Product, ProductReadDTO>();
+        CreateMap<Product, ProductReadDTO>()
+            .ForMember(
+                dest => dest.Image,
+                opt => opt.MapFrom(
+                    src => src.Images
+                        .Select(x => x.FileName)
+                        .FirstOrDefault()
+        )
+    );
     }
 }
